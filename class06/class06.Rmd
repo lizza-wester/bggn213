@@ -2,7 +2,7 @@
 title: "Class06"
 author: 'Lizzie (PID: 59010743)'
 date: "10/15/2021"
-output: pdf_document
+output: github_document
 ---
 
 ## Rmarkdown Tutorial
@@ -142,13 +142,13 @@ Make a boxplot
 boxplot(scores)
 ```
 ```{r}
-grade <-function(x, drop.lowest = TRUE){
-x <- as.numeric(x)
-x[is.na(x)]=0
-if (drop.lowest){
-  mean(x[-which.min(x)])
-} else{
-  mean(x)
-}
-```}
+# grade <-function(x, drop.lowest = TRUE){
+# x <- as.numeric(x)
+# x[is.na(x)]=0
+# if (drop.lowest){
+#   mean(x[-which.min(x)])
+# } else{
+#   mean(x)
+# }
+```
 
