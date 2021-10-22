@@ -1,0 +1,145 @@
+---
+title: "class08"
+author: 'Lizzie (PID: 59010743)'
+date: "10/22/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+# Clustering methods
+
+Kmeans clustering in R is done with the 'kmeans()' function.
+Make up a data set to test.
+
+```{r}
+tmp <- c(rnorm(30,3), rnorm(30,-3))
+data <- cbind(x=tmp, y=rev(tmp))
+plot(data)
+```
+
+Run 'kmeans' set k to 2 nstart 20. You have to tell kmeans how many clusters you want.
+
+```{r}
+km <- kmeans(data, centers = 2, nstart = 20)
+km
+```
+Q1. How many points are in each cluster?
+```{r}
+km$size
+```
+Q2. What component of your result object details cluster assignment/membership?
+```{r}
+km$cluster
+```
+
+Q3. What component of your result object details cluster center
+```{r}
+km$centers
+```
+
+Q4. Plot x colored by the kmeans cluster assignment and add cluster centers as blue points
+```{r}
+plot(data, col=km$cluster)
+points(km$centers, col="blue", pch=15, cex=2)
+```
+
+#Hierarchical clustering using the hclust() function and the same data as before.You can't just pass the data to hclust. 
+```{r}
+hc <- hclust(dist(data))
+hc
+
+```
+
+hclust has a plot method
+```{r}
+plot(hc)
+```
+
+To find out membership vector we need to "cut" the tree and for this you use the 'cutree()' function and tell it the height at which to cut it.
+
+```{r}
+cutree(hc, h=7)
+```
+We can also use the cutree() and state the number of k clusters we want
+```{r}
+grps <- cutree(hc, k=2)
+```
+
+```{r}
+plot(data, col=grps)
+```
+
+Principal component analysis (PCA)
+
+
+## PCA of UK food data
+```{r}
+url <- "https://tinyurl.com/UK-foods"
+x <- read.csv(url)
+dim(x)
+x
+#fix the data set
+rownames(x) <- x[,1]
+x <- x[,-1]
+head(x)
+
+#this isn't the best way. Deal upon import
+url <- "https://tinyurl.com/UK-foods"
+x <- read.csv(url, row.names=1)
+x
+```
+```{r}
+mycols <- rainbow(nrow(x))
+barplot(as.matrix(x), col=rainbow(17), beside=TRUE)
+```
+```{r}
+pairs(x, col=mycols, pch=16)
+```
+Here we will use the base R function for PCA which is called 'prcomp()'. You need to first transpose the data.
+```{r}
+pca <- prcomp(t(x))
+summary(pca)
+```
+```{r}
+plot(pca)
+```
+
+We want score plot (aka PCA plot). Basically a plot of PC1 vs. PC2
+```{r}
+attributes(pca)
+```
+We want the pca$x component for this plot
+```{r}
+plot(pca$x[,1:2])
+text(pca$x[,1:2], labels = colnames(x))
+```
+We can examine PCA loadings which tell us how much the original variables contribute to each new PC.
+
+```{r}
+par(mar=c(10, 3, 0.35, 0))
+barplot(pca$rotation[,1], las=2)
+```
+
+RNA Seq analysis
+```{r}
+url2 <- "https://tinyurl.com/expression-CSV"
+rna.data <- read.csv(url2, row.names=1)
+head(rna.data)
+#how many genes
+nrow(rna.data)
+#how many experiments
+ncol(rna.data)
+colnames(rna.data)
+```
+```{r}
+pca.rna <- prcomp(t(rna.data), scale=TRUE)
+plot(pca$x[,1], pca$x[,2], xlab="PC1", ylab="PC2")
+summary(pca.rna)
+plot(pca.rna)
+```
+```{r}
+plot(pca.rna$x[,1:2])
+text(pca.rna$x[,1:2], labels = colnames(rna.data))
+```
+
