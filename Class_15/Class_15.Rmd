@@ -1,0 +1,128 @@
+---
+title: "Class_15"
+author: 'Lizzie (PID: 59010743)'
+date: "11/17/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+library(BiocManager)
+library(DESeq2)
+```
+
+#Examining data published from Himes et al. 2014.
+
+##Load the countData and colData
+1. Count data is the count matrix (number of reads coming from each gene for each sample)
+2. colData describes metadata about the columns of countData
+
+```{r}
+counts <- read.csv("airway_scaledcounts.csv", row.names=1)
+metadata <- read.csv("airway_metadata.csv")
+```
+
+```{r}
+head(counts)
+head(metadata)
+```
+
+#Check that the first column of colData matches the column names of countData
+```{r}
+metadata$id == colnames(counts)
+all(metadata$id == colnames(counts))
+```
+
+#Compare control to treated. First we need to access all the control columns in our counts data.
+```{r}
+treated <- metadata[metadata[,"dex"]=="treated",]
+treated.counts <- counts[ ,treated$id]
+treated.mean <- rowSums( treated.counts )/4 
+
+control <- metadata[metadata[,"dex"]=="control",]
+control.counts <- counts[ ,control$id]
+control.mean <- rowSums( control.counts )/4 
+head(control.mean)
+```
+
+```{r}
+meancounts <- data.frame(control.mean, treated.mean)
+nrow(counts)
+```
+
+```{r}
+plot(meancounts[,1],meancounts[,2], xlab="Control", ylab="Treated", log="xy")
+```
+
+Transform the data to a log scale
+```{r}
+log2(80/20)
+```
+
+```{r}
+meancounts$log2fc <- log2(meancounts[,"treated.mean"]/meancounts[,"control.mean"])
+head(meancounts)
+```
+#Testing the which function. It is not useful in default mode on our type of multi-column input. Need to use arr.ind = TRUE
+```{r}
+which(c(T,F,T))
+```
+#This removes the zero values
+```{r}
+head(meancounts[,1:2])
+zero.vals <- which(meancounts[,1:2]==0, arr.ind=TRUE)
+to.rm <- unique(zero.vals[,1])
+mycounts <- meancounts[-to.rm,]
+head(mycounts)
+nrow(mycounts)
+```
+
+```{r}
+up.ind <- mycounts$log2fc > 2
+sum(up.ind)/nrow(mycounts) * 100
+down.ind <- mycounts$log2fc < (-2)
+sum(down.ind)/nrow(mycounts) * 100
+sum(up.ind, down.ind)/nrow(mycounts) * 100
+```
+#DESeq2 Analysis
+#We first need to setup the DESeq input object
+```{r}
+dds <- DESeqDataSetFromMatrix(countData=counts, 
+                              colData=metadata, 
+                              design=~dex)
+dds
+dds <- DESeq(dds)
+```
+
+```{r}
+res <- results(dds)
+res
+```
+
+Volcano Plot
+```{r}
+plot( res$log2FoldChange,  -log(res$padj), 
+      xlab="Log2(FoldChange)",
+      ylab="-Log(P-value)")
+abline(v=c(-2,2), col="pink", lty=2)
+abline(h=-log(0.05), col="gray",lty=2)
+```
+
+#Add gene names to our dataset. Use the bioconductor packages. The first one does the work and the other contains the data.
+```{r}
+library("AnnotationDbi")
+#BiocManager::install("org.Hs.eg.db")
+library(org.Hs.eg.db)
+```
+
+#The main function we will use is mapIds()
+```{r}
+res$symbol <- mapIds(org.Hs.eg.db,
+                     keys=row.names(res), # Our genenames
+                     keytype="ENSEMBL",        # The format of our genenames
+                     column="SYMBOL",          # The new format we want to add
+                     multiVals="first")
+write.csv(res, file = "allmyresults.csv")
+```
+
