@@ -1,0 +1,43 @@
+---
+title: "Class_19"
+author: 'Lizzie (PID: 59010743)'
+date: "11/28/2021"
+output:
+  pdf_document: default
+  html_document: default
+---
+
+```{r}
+x <- read.csv("MXL.csv", header=TRUE)
+head(x)
+sum(x$Genotype..forward.strand. == "G|G")
+```
+
+```{r}
+dat <- read.table("rs8067378_ENSG00000172057.6.txt")
+dat
+summary(dat)
+unique(dat$geno)
+```
+
+Q13
+```{r}
+sum(dat$geno == "A/G") # there are 233 A/G
+sum(dat$geno == "G/G") # there are 121 G/G
+sum(dat$geno == "A/A") # there are 108 A/A
+A_G <- dat$exp[dat$geno == "A/G"]
+A_A <- dat$exp[dat$geno == "A/A"]
+G_G <- dat$exp[dat$geno == "G/G"]
+```
+
+```{r}
+summary(A_G) #median level of expression for A/G is 25.065
+summary(A_A) #median level of expression for A/A is 31.25
+summary(G_G) #median level of expression for G/G is 20.074
+```
+Q14
+```{r}
+mycol <- c("blueviolet", "cyan3", "aquamarine2")
+boxplot(A_G,A_A,G_G,notch= TRUE, col = mycol , ylab= "Expression", xlab= "Genotype")
+```
+
