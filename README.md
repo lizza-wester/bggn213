@@ -1,10 +1,9 @@
 # bggn213
 Bioinformatics class at UC San Diego, Fall 2021
 
-**Class 5**: [class05.md](https://github.com/lizza-wester/bggn213/files/7657867/class05.md)
+-Class05: [class05.md](https://github.com/lizza-wester/bggn213/files/7657867/class05.md)
 
-**Class 6**
-[class06.md](https://github.com/lizza-wester/bggn213/files/7657822/class06.md)
+-Class 6: [class06.md](https://github.com/lizza-wester/bggn213/files/7657822/class06.md)
 
 **Class 8**
 [class08.md](https://github.com/lizza-wester/bggn213/files/7657863/class08.md)
